@@ -35,3 +35,5 @@ test_tipc/web/node_modules/
 
 images/
 weights/
+nohup.out
+assets/

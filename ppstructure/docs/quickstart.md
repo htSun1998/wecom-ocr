@@ -138,7 +138,7 @@ import os
 import cv2
 from paddleocr import PPStructure,draw_structure_result,save_structure_res
 
-table_engine = PPStructure(show_log=True, image_orientation=True)
+table_engine = PPStructure(image_orientation=True)
 
 save_folder = './output'
 img_path = 'ppstructure/docs/table/1.png'
@@ -196,7 +196,7 @@ import os
 import cv2
 from paddleocr import PPStructure,save_structure_res
 
-table_engine = PPStructure(table=False, ocr=False, show_log=True)
+table_engine = PPStructure(table=False, ocr=False)
 
 save_folder = './output'
 img_path = 'ppstructure/docs/table/1.png'
