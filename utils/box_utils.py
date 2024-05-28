@@ -16,6 +16,11 @@ class Rect:
     
     def set_roi(self, roi):
         self.roi = roi
+    
+    @property
+    def vertical_center(self):
+        top_left, _, bottom_right, _ = self.location
+        return (top_left[1] + bottom_right[1]) / 2
 
 
 class Box(Rect):
@@ -85,7 +90,7 @@ def get_center(box):
     return [box[0] + box[2] / 2.0, box[1] + box[3] / 2.0]
 
 
-def merge_boxes(boxes):
+def merge_boxes(boxes: list[int]):
     """
     合并同一行的box
     """
@@ -125,5 +130,25 @@ def find_title(image):
     return image[10:60, 310:620]
 
 
-def merge_emoji(emoji_list, text_list):  # TODO
-    pass
+def boxes_in_same_row(box1: Rect, box2: Rect, threshold=10):
+    return abs(box1.vertical_center - box2.vertical_center) < threshold
+
+
+def merge_emoji(emoji_list: list[Rect], text_list: list[Rect]):  # TODO
+    boxes = emoji_list + text_list
+    boxes.sort(key=lambda x: x.location[0][1])
+    rows: list[list[Rect]] = []
+    current_row = [boxes[0]]
+
+    for current_box in boxes[1:]:
+        if boxes_in_same_row(current_box, current_row[-1]):
+            current_row.append(current_box)
+        else:
+            rows.append(current_row)
+            current_row = [current_box]
+    rows.append(current_row)
+    for row in rows:
+        row.sort(key=lambda x: x.location[0][0])
+    merged_rows = [''.join(box.text for box in row) for row in rows]
+    final_text = '\n'.join(merged_rows)
+    return final_text

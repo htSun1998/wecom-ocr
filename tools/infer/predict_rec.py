@@ -127,25 +127,6 @@ class TextRecognizer(object):
             utility.create_predictor(args, 'rec', logger)
         self.benchmark = args.benchmark
         self.use_onnx = args.use_onnx
-        if args.benchmark:
-            import auto_log
-            pid = os.getpid()
-            gpu_id = utility.get_infer_gpuid()
-            self.autolog = auto_log.AutoLogger(
-                model_name="rec",
-                model_precision=args.precision,
-                batch_size=args.rec_batch_num,
-                data_shape="dynamic",
-                save_path=None,  #args.save_log_path,
-                inference_config=self.config,
-                pids=pid,
-                process_name=None,
-                gpu_ids=gpu_id if args.use_gpu else None,
-                time_keys=[
-                    'preprocess_time', 'inference_time', 'postprocess_time'
-                ],
-                warmup=0,
-                logger=logger)
 
     def resize_norm_img(self, img, max_wh_ratio):
         imgC, imgH, imgW = self.rec_image_shape

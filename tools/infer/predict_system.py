@@ -26,7 +26,6 @@ import copy
 import numpy as np
 import json
 import time
-import logging
 from PIL import Image
 import tools.infer.utility as utility
 import tools.infer.predict_rec as predict_rec
@@ -40,9 +39,6 @@ logger = get_logger()
 
 class TextSystem(object):
     def __init__(self, args):
-        if not args.show_log:
-            logger.setLevel(logging.INFO)
-
         self.text_detector = predict_det.TextDetector(args)  # 文字检测模型
         self.text_recognizer = predict_rec.TextRecognizer(args)  # 文字识别模型
         self.use_angle_cls = args.use_angle_cls
@@ -61,14 +57,14 @@ class TextSystem(object):
                 os.path.join(output_dir,
                              f"mg_crop_{bno+self.crop_image_res_index}.jpg"),
                 img_crop_list[bno])
-            logger.debug(f"{bno}, {rec_res[bno]}")
+            
         self.crop_image_res_index += bbox_num
 
     def __call__(self, img, cls=True):
         time_dict = {'det': 0, 'rec': 0, 'cls': 0, 'all': 0}
 
         if img is None:
-            logger.debug("no valid image provided")
+            
             return None, None, time_dict
 
         start = time.time()
@@ -77,16 +73,15 @@ class TextSystem(object):
         time_dict['det'] = elapse
 
         if dt_boxes is None:
-            logger.debug("no dt_boxes found, elapsed : {}".format(elapse))
+            
             end = time.time()
             time_dict['all'] = end - start
             return None, None, time_dict
         else:
-            logger.debug("dt_boxes num : {}, elapsed : {}".format(
-                len(dt_boxes), elapse))
+            pass
         img_crop_list = []
 
-        dt_boxes = sorted_boxes(dt_boxes)  # TODO 检查dt_boxes结构，是否含有分类功能
+        dt_boxes = sorted_boxes(dt_boxes)
 
         for bno in range(len(dt_boxes)):
             tmp_box = copy.deepcopy(dt_boxes[bno])
@@ -98,13 +93,11 @@ class TextSystem(object):
         if self.use_angle_cls and cls:
             img_crop_list, angle_list, elapse = self.text_classifier(img_crop_list)
             time_dict['cls'] = elapse
-            logger.debug("cls num  : {}, elapsed : {}".format(
-                len(img_crop_list), elapse))
+            
 
         rec_res, elapse = self.text_recognizer(img_crop_list)
         time_dict['rec'] = elapse
-        logger.debug("rec_res num  : {}, elapsed : {}".format(
-            len(rec_res), elapse))
+        
         if self.args.save_crop_res:
             self.draw_crop_rec_res(self.args.crop_res_save_dir, img_crop_list,
                                    rec_res)
@@ -154,11 +147,6 @@ def main(args):
     os.makedirs(draw_img_save_dir, exist_ok=True)
     save_results = []
 
-    logger.info(
-        "In PP-OCRv3, rec_image_shape parameter defaults to '3, 48, 320', "
-        "if you are using recognition model with PP-OCRv2 or an older version, please set --rec_image_shape='3,32,320"
-    )
-
     # warm up 10 times
     if args.warmup:
         img = np.random.uniform(0, 255, [640, 640, 3]).astype(np.uint8)
@@ -176,7 +164,6 @@ def main(args):
             img = cv2.imread(image_file)
         if not flag_pdf:
             if img is None:
-                logger.debug("error in loading image:{}".format(image_file))
                 continue
             imgs = [img]
         else:
@@ -190,15 +177,11 @@ def main(args):
             elapse = time.time() - starttime
             total_time += elapse
             if len(imgs) > 1:
-                logger.debug(
-                    str(idx) + '_' + str(index) + "  Predict time of %s: %.3fs"
-                    % (image_file, elapse))
+                pass
             else:
-                logger.debug(
-                    str(idx) + "  Predict time of %s: %.3fs" % (image_file,
-                                                                elapse))
+                pass
             for text, score in rec_res:
-                logger.debug("{}, {:.3f}".format(text, score))
+                pass
 
             res = [{
                 "transcription": rec_res[i][0],
@@ -237,11 +220,7 @@ def main(args):
                     os.path.join(draw_img_save_dir,
                                  os.path.basename(save_file)),
                     draw_img[:, :, ::-1])
-                logger.debug("The visualized image saved in {}".format(
-                    os.path.join(draw_img_save_dir, os.path.basename(
-                        save_file))))
 
-    logger.info("The predict total time is {}".format(time.time() - _st))
     if args.benchmark:
         text_sys.text_detector.autolog.report()
         text_sys.text_recognizer.autolog.report()

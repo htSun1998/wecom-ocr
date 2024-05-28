@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import copy
+import json
 
 from .image_utils import load_cv2
 from .box_utils import convert_coordinates, Box, Rect
@@ -12,25 +13,40 @@ class Emoji(Rect):
         self.relate_location = None
     
     def set_location(self, location, roi_location):
-        self.relate_location = convert_coordinates(location)
+        if isinstance(location[0], list):  # 标准化
+            self.relate_location = location
+        else:  # 非标准化
+            self.relate_location = convert_coordinates(location)
         self.location = [[x + roi_location[0][0], y + roi_location[0][1]] for [x, y] in self.relate_location]
+
+
+class Text(Emoji):
+    pass
 
 
 class EmojiSeacher:
     def __init__(self) -> None:
         self.dir_path: str = "/data/PaddleOCR/assets/emojis"
-        self.emoji_list: list[Emoji] = self.read_file()
+        self.encode_path = "/data/PaddleOCR/assets/wechat_emoji.json"
 
-
-    def read_file(self) -> list[Emoji]:
-        emoji_list = []
+    @property
+    def emoji_list(self) -> list[Emoji]:
+        emojis = []
         for filename in os.listdir(self.dir_path):
             file_path = os.path.join(self.dir_path, filename)
             emoji = Emoji()
             emoji.set_roi(cv2.imread(file_path))
             emoji.set_text(self.encode(filename))
-            emoji_list.append(emoji)
-        return emoji_list
+            emojis.append(emoji)
+        return emojis
+
+
+    @property
+    def encode_dict(self):
+        data = None
+        with open(self.encode_path, 'r') as json_file:
+            data = json.load(json_file)
+        return data
 
 
     def find_emojis(self, box: Box) -> list[Emoji]:
@@ -51,7 +67,7 @@ class EmojiSeacher:
 
     def encode(self, filename):
         emoji_name = os.path.splitext(filename)[0]
-        return f"[{emoji_name}]"
+        return f"{self.encode_dict[emoji_name]}"
 
 
     def locate(self, needle_image: np.ndarray, haystack_image: np.ndarray, grayscale=True, limit=10000, region=(0, 0), step=1, confidence=0.999):

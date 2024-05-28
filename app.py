@@ -9,18 +9,16 @@ from loguru import logger
 import copy
 
 import tools.infer.utility as utility
-from tools.infer.predict_rec import TextRecognizer
 from tools.infer.predict_system import TextSystem
 
 from utils.box_utils import find_title, find_boxes, merge_emoji
 from utils.image_utils import compare_images, is_image
 from utils.messages import Response
-from utils.emoji_utils import EmojiSeacher
+from utils.emoji_utils import EmojiSeacher, Text
 
 
 app = FastAPI()
 args = utility.parse_args()
-text_recognizer = TextRecognizer(args)
 text_sys = TextSystem(args)
 emoji_seacher = EmojiSeacher()
 
@@ -38,27 +36,30 @@ app.add_middleware(
 async def predict_single(file: bytes = File(),
                          ip: str = Form(),
                          phoneNumber: str = Form()):
+    logger.info(f"phone_number\t{phoneNumber}")
     image2 = cv2.imdecode(np.frombuffer(file, np.uint8), cv2.IMREAD_COLOR)
     title_box = find_title(image2)
-    h_new = 0
     
+    # 查找增量数据
+    h_new = 0
     image1 = None
     if os.path.exists(f"/data/PaddleOCR/images/{phoneNumber}.png"):
         image1 = cv2.imread(f"/data/PaddleOCR/images/{phoneNumber}.png")
         h_new = compare_images(image1, image2)
-    logger.debug(f"h_new: {h_new}")
+    logger.info(f"是否重叠\t{'yes' if h_new > 0 else 'no'}")
+
     # 查找符合要求的box和roi
     boxes = find_boxes(image2, h_new)
-    
     for box in boxes:
         # 第一次检测，直接用文字识别
-        res, _ = text_recognizer([box.roi])
+        res, _ = text_sys.text_recognizer([box.roi])
         score = res[0][1]
-        print(res)
+
         # 图片类型
         if is_image(box.roi):
             box.set_text("当前类型无法识别")
             logger.info("图片\t当前类型无法识别")
+
         # 弱文本类型
         # TODO 小表情搜索定位并整合进文本内容
         elif score < 0.87:
@@ -66,17 +67,17 @@ async def predict_single(file: bytes = File(),
             emoji_list = emoji_seacher.find_emojis(box_copy)
             for emoji in emoji_list:
                 box_copy.mask(emoji.relate_location)
-                print(emoji.relate_location)
-                print(emoji.location)
-                print(emoji.text)
-            cv2.imwrite("1.png", box_copy.roi)
-            _, text_list, _ = text_sys(box_copy.roi)
-            print(text_list)
-            text = ""
-            for t in text_list:
-                text += t[0] + "\n"
-            box.set_text(text[:-1])
-            logger.info(f"{text[:-1]}")
+            text_list = []
+            locations, textes, _ = text_sys(box_copy.roi)
+            for l, t in zip(locations, textes):
+                text = Text()
+                text.set_location(l.tolist(), box_copy.location)
+                text.set_text(t[0])
+                text_list.append(text)
+            weak_res = merge_emoji(emoji_list, text_list)
+            box.set_text(weak_res)
+            logger.info(f"弱文本\t{weak_res}")
+
         # 强文本类型
         else:
             box.set_text(res[0][0])
