@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from .log_utils import timer
 
 
 class Rect:
@@ -46,6 +47,7 @@ def convert_coordinates(coordinates):
     return transformed_coordinates
 
 
+@timer(message="搜索所有有效的box")
 def find_boxes(image, h_new) -> list[Box]:
     boxes = []
     target_color = (247, 246, 246)

@@ -1,11 +1,23 @@
 import numpy as np
 import cv2
 from PIL import Image
+from .log_utils import timer
 
 
-def is_image(image: np.ndarray, point=(5, 5), target_color=(233, 232, 232)):
-    # 检查高度，图片高度必然超过30
-    if image.shape[0] < 30:
+TOP: int = 62
+BOTTOM: int = 618
+LEFT: int = 304
+RIGHT: int = 1267
+CHAT_COLOR: tuple = (233, 232, 232)
+CHAT_POINT: tuple = (5, 5)
+IMAGE_MIN_HEIGHT: int = 30
+SCAN_STEP: int = 15
+SCAN_MIN_HEIGHT: int = 25
+
+
+def is_image(image: np.ndarray, point=CHAT_POINT, target_color=CHAT_COLOR):
+    # 检查高度
+    if image.shape[0] < IMAGE_MIN_HEIGHT:
         return False
     # 检查给定点是否在图片范围内
     if point[0] < image.shape[0] and point[1] < image.shape[1]:
@@ -18,17 +30,18 @@ def is_image(image: np.ndarray, point=(5, 5), target_color=(233, 232, 232)):
     return False
 
 
+@timer(message="与上一张图片比较")
 def compare_images(image1, image2):
-    image1 = image1[62:618, 304:1267, :]
-    image2 = image2[62:618, 304:1267, :]
-    H = image1.shape[0]
+    image1 = image1[TOP:BOTTOM, LEFT:RIGHT, :]
+    image2 = image2[TOP:BOTTOM, LEFT:RIGHT, :]
+    height = image1.shape[0]
     if np.array_equal(image1, image2):
-        return 618
-    for h in range(H, 25, -15):  # mask的高度从H到10依次递减
-        mask = image1[H - h:H, :, :]  # mask部分从H-h到H，即图片的尾部部分，高度从大到小
-        for step in range(H - h):
+        return BOTTOM
+    for h in range(height, SCAN_MIN_HEIGHT, -SCAN_STEP):  # mask的高度从height到25依次递减
+        mask = image1[height - h:height, :, :]  # mask部分从H-h到H，即图片的尾部部分，高度从大到小
+        for step in range(height - h):
             if np.array_equal(mask, image2[step:step + h, :, :]):
-                return step + h + 62  # 若找到相似部分，返回相似部分的底边纵坐标
+                return step + h + TOP  # 若找到相似部分，返回相似部分的底边纵坐标
     return 0  # 若没找到，则返回0
 
 

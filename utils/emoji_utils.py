@@ -6,6 +6,7 @@ import json
 
 from .image_utils import load_cv2
 from .box_utils import convert_coordinates, Box, Rect
+from .log_utils import timer
 
 
 class Emoji(Rect):
@@ -49,6 +50,7 @@ class EmojiSeacher:
         return data
 
 
+    @timer(message="搜索所有emoji表情")
     def find_emojis(self, box: Box) -> list[Emoji]:
         """
         定位emoji 并转换为图片绝对位置
