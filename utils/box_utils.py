@@ -92,7 +92,7 @@ def get_center(box):
     return [box[0] + box[2] / 2.0, box[1] + box[3] / 2.0]
 
 
-def merge_boxes(boxes):
+def merge_boxes(boxes: list):
     """
     合并同一行的box
     """
