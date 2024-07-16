@@ -4,17 +4,19 @@ import numpy as np
 import copy
 import os
 
-import tools.infer.utility as utility
 from tools.infer.predict_system import TextSystem
 from utils.messages import Response
 from utils.emoji_utils import EmojiSeacher, Text
 from utils.box_utils import find_title, find_boxes, merge_emoji
 from utils.image_utils import compare_images, is_image, BOTTOM
 from utils.log_utils import timer
+from utils.args import Arguments
 
-args = utility.parse_args()
-text_sys = TextSystem(args)
+
+text_sys = TextSystem(Arguments)
 emoji_seacher = EmojiSeacher()
+
+THRESHOLD: float = 0.87
 
 
 @timer(message="完整程序")
@@ -45,10 +47,14 @@ def execute_ocr(file, ip, phoneNumber):
         if is_image(box.roi):
             box.set_text("当前类型无法识别")
             logger.info("图片：当前类型无法识别")
-
-        # 3.2 弱文本类型
+        # 3.2 强文本类型
+        # score在阈值以上，直接使用文字识别的结果
+        elif score > THRESHOLD:
+            box.set_text(res[0][0])
+            logger.info(f"强文本：{res[0][0]}")
+        # 3.3 弱文本类型
         # score小于阈值，划定为弱文本，使用文字检测和文字识别重新计算
-        elif score < 0.87:
+        else:
             box_copy = copy.deepcopy(box)  # 使用copy，否则会在原图上进行mask
             emoji_list = emoji_seacher.find_emojis(box_copy)
             for emoji in emoji_list:
@@ -63,18 +69,12 @@ def execute_ocr(file, ip, phoneNumber):
             weak_res = merge_emoji(emoji_list, text_list)
             box.set_text(weak_res)
             logger.info(f"弱文本：{weak_res}")
-
-        # 3.3 强文本类型
-        # score在阈值以上，直接使用文字识别的结果
-        else:
-            box.set_text(res[0][0])
-            logger.info(f"强文本：{res[0][0]}")
+  
     _, title, _ = text_sys(title_box)
     logger.info(f"标题：{title[0][0]}")
     if h_new != BOTTOM:
         cv2.imwrite(f"/data/PaddleOCR/images/{phoneNumber}.png", image2)
     return Response(code=0,
-                    # result=list(zip(boxes, textes)),
                     result=[box.to_list() for box in boxes],
                     ip=ip,
                     phoneNumber=phoneNumber,

@@ -9,7 +9,7 @@ class Rect:
         self.roi = None
         self.text = None
     
-    def set_text(self, text):
+    def set_text(self, text: str) -> None:
         self.text = text
     
     def set_location(self, location):
@@ -92,7 +92,7 @@ def get_center(box):
     return [box[0] + box[2] / 2.0, box[1] + box[3] / 2.0]
 
 
-def merge_boxes(boxes: list[int]):
+def merge_boxes(boxes):
     """
     合并同一行的box
     """
@@ -128,15 +128,15 @@ def merge_boxes(boxes: list[int]):
     return result
 
 
-def find_title(image):
+def find_title(image: np.ndarray) -> np.ndarray:
     return image[10:60, 310:620]
 
 
-def boxes_in_same_row(box1: Rect, box2: Rect, threshold=10):
+def boxes_in_same_row(box1: Rect, box2: Rect, threshold=10) -> bool:
     return abs(box1.vertical_center - box2.vertical_center) < threshold
 
 
-def merge_emoji(emoji_list: list[Rect], text_list: list[Rect]):  # TODO
+def merge_emoji(emoji_list: list[Rect], text_list: list[Rect]) -> str:
     boxes = emoji_list + text_list
     boxes.sort(key=lambda x: x.location[0][1])
     rows: list[list[Rect]] = []

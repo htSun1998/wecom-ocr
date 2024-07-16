@@ -60,7 +60,7 @@ class TextSystem(object):
             
         self.crop_image_res_index += bbox_num
 
-    def __call__(self, img, cls=True):
+    def __call__(self, img, cls=True) -> tuple[list[np.ndarray], list, dict]:
         time_dict = {'det': 0, 'rec': 0, 'cls': 0, 'all': 0}
 
         if img is None:

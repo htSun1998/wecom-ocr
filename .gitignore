@@ -11,7 +11,7 @@ inference/
 inference_results/
 output/
 train_data/
-log/
+logs/
 *.DS_Store
 *.vs
 *.user

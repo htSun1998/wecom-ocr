@@ -1,6 +1,6 @@
-import uvicorn
 from fastapi import FastAPI, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+import subprocess
 
 from loguru import logger
 from concurrent.futures import ThreadPoolExecutor
@@ -9,6 +9,12 @@ from execute import execute_ocr
 app = FastAPI()
 
 executor = ThreadPoolExecutor()
+
+
+logger.add("logs/{time:YYYY-MM-DD}.log",
+           rotation="1 day",
+           retention="3 days",
+           compression="zip")
 
 
 app.add_middleware(
@@ -22,15 +28,13 @@ app.add_middleware(
 
 @app.post("/ocr/predict/single")
 def predict_single(file: bytes = File(),
-                         ip: str = Form(),
-                         phoneNumber: str = Form()):
+                   ip: str = Form(),
+                   phoneNumber: str = Form()):
     future = executor.submit(execute_ocr, file, ip, phoneNumber)
     return future.result()
 
 
 if __name__ == "__main__":
-    logger.add("logs/{time:YYYY-MM-DD}.log",
-           rotation="1 day",
-           retention="3 days",
-           compression="zip")
-    uvicorn.run(app='app:app', host="0.0.0.0", port=10900, workers=10)
+    # uvicorn.run(app='app:app', host="0.0.0.0", port=10900)
+    for port in range(10901, 10911):  # 10901 ~ 10910
+        subprocess.Popen(["uvicorn", "app:app", "--host", "0.0.0.0", "--port", str(port)])

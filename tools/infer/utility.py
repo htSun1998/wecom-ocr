@@ -55,6 +55,8 @@ def init_args():
     parser.add_argument("--det_algorithm", type=str, default='DB')
     parser.add_argument("--det_model_dir", type=str,
                         default='/data/PaddleOCR/weights/ch_PP-OCRv4_det_infer/')  # 设置默认det模型路径
+    # parser.add_argument("--det_model_dir", type=str,
+    #                     default='/data/PaddleOCR/weights/ch_PP-OCRv3_det_slim_infer/')  # 设置默认det模型路径
     parser.add_argument("--det_limit_side_len", type=float, default=960)
     parser.add_argument("--det_limit_type", type=str, default='max')
     parser.add_argument("--det_box_type", type=str, default='quad')
@@ -92,6 +94,8 @@ def init_args():
     parser.add_argument("--rec_algorithm", type=str, default='SVTR_LCNet')
     parser.add_argument("--rec_model_dir", type=str,
                         default='/data/PaddleOCR/weights/ch_PP-OCRv4_rec_infer/')  # 设置rec模型默认路径
+    # parser.add_argument("--rec_model_dir", type=str,
+    #                     default='/data/PaddleOCR/weights/ch_PP-OCRv3_rec_slim_infer/')  # 设置rec模型默认路径
     parser.add_argument("--rec_image_inverse", type=str2bool, default=True)
     parser.add_argument("--rec_image_shape", type=str, default="3, 48, 320")
     parser.add_argument("--rec_batch_num", type=int, default=6)
