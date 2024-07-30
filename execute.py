@@ -29,12 +29,13 @@ def execute_ocr(file, ip, phoneNumber):
     # 2 查找增量数据
     h_new = 0
     image1 = None
-    if os.path.exists(f"/data/PaddleOCR/images/{phoneNumber}.png"):
-        image1 = cv2.imread(f"/data/PaddleOCR/images/{phoneNumber}.png")
+    if os.path.exists(f"/data/project/PaddleOCR/images/{phoneNumber}.png"):
+        image1 = cv2.imread(f"/data/project/PaddleOCR/images/{phoneNumber}.png")
         h_new = compare_images(image1, image2)
     logger.info(f"是否重叠：{'有重叠' if h_new > 0 else '无重叠'}")
 
     # 3 查找符合要求的box和roi
+    # cv2.imwrite("/data/project/PaddleOCR/1.png", image2)
     boxes = find_boxes(image2, h_new)
     # boxes = find_boxes(image2, 0)
     for box in boxes:
@@ -73,7 +74,7 @@ def execute_ocr(file, ip, phoneNumber):
     _, title, _ = text_sys(title_box)
     logger.info(f"标题：{title[0][0]}")
     if h_new != BOTTOM:
-        cv2.imwrite(f"/data/PaddleOCR/images/{phoneNumber}.png", image2)
+        cv2.imwrite(f"/data/project/PaddleOCR/images/{phoneNumber}.png", image2)
     return Response(code=0,
                     result=[box.to_list() for box in boxes],
                     ip=ip,

@@ -64,7 +64,7 @@ def find_boxes(image, h_new) -> list[Box]:
     # 定义左上角点筛选的范围
     x_right = 1150
     # x_min, x_max = 310, 1200
-    y_min, y_max = 60, 610
+    y_min, y_max = 60, 810
 
     raw_boxes = []
     # 记录每个边界框

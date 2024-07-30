@@ -8,10 +8,10 @@ class Arguments:
     precision = 'fp32'
     gpu_mem = 500
     gpu_id = 0
-    image_dir = '/data/PaddleOCR/test_img/'
+    image_dir = '/data/project/PaddleOCR/test_img/'
     page_num = 0
     det_algorithm = 'DB'
-    det_model_dir = '/data/PaddleOCR/weights/ch_PP-OCRv4_det_infer/'
+    det_model_dir = '/data/project/PaddleOCR/weights/ch_PP-OCRv4_det_infer/'
     det_limit_side_len = 960
     det_limit_type = 'max'
     det_box_type = 'quad'
@@ -35,12 +35,12 @@ class Arguments:
     beta = 1.0
     fourier_degree = 5
     rec_algorithm = 'SVTR_LCNet'
-    rec_model_dir = '/data/PaddleOCR/weights/ch_PP-OCRv4_rec_infer/'
+    rec_model_dir = '/data/project/PaddleOCR/weights/ch_PP-OCRv4_rec_infer/'
     rec_image_inverse = True
     rec_image_shape = '3, 48, 320'
     rec_batch_num = 6
     max_text_length = 25
-    rec_char_dict_path = '/data/PaddleOCR/ppocr/utils/ppocr_keys_v1.txt'
+    rec_char_dict_path = '/data/project/PaddleOCR/ppocr/utils/ppocr_keys_v1.txt'
     use_space_char = True
     vis_font_path = './doc/fonts/simfang.ttf'
     drop_score = 0.5
@@ -49,7 +49,7 @@ class Arguments:
     e2e_limit_side_len = 768
     e2e_limit_type = 'max'
     e2e_pgnet_score_thresh = 0.5
-    e2e_char_dict_path = '/data/PaddleOCR/ppocr/utils/ic15_dict.txt'
+    e2e_char_dict_path = '/data/project/PaddleOCR/ppocr/utils/ic15_dict.txt'
     e2e_pgnet_valid_set = 'totaltext'
     e2e_pgnet_mode = 'fast'
     use_angle_cls = False
@@ -65,7 +65,7 @@ class Arguments:
     sr_model_dir = None
     sr_image_shape = '3, 32, 128'
     sr_batch_num = 1
-    draw_img_save_dir = '/data/PaddleOCR/inference_results/'
+    draw_img_save_dir = '/data/project/PaddleOCR/inference_results/'
     save_crop_res = False
     crop_res_save_dir = './output'
     use_mp = False

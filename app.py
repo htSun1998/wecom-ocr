@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
+import uvicorn
 
 from loguru import logger
 from concurrent.futures import ThreadPoolExecutor
@@ -35,6 +36,6 @@ def predict_single(file: bytes = File(),
 
 
 if __name__ == "__main__":
-    # uvicorn.run(app='app:app', host="0.0.0.0", port=10900)
-    for port in range(10901, 10911):  # 10901 ~ 10910
-        subprocess.Popen(["uvicorn", "app:app", "--host", "0.0.0.0", "--port", str(port)])
+    uvicorn.run(app='app:app', host="0.0.0.0", port=10900)
+    # for port in range(10901, 10911):  # 10901 ~ 10910
+    #     subprocess.Popen(["uvicorn", "app:app", "--host", "0.0.0.0", "--port", str(port)])

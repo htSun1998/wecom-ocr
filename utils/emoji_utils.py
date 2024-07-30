@@ -27,8 +27,8 @@ class Text(Emoji):
 
 class EmojiSeacher:
     def __init__(self) -> None:
-        self.dir_path: str = "/data/PaddleOCR/assets/emojis"
-        self.encode_path = "/data/PaddleOCR/assets/wechat_emoji.json"
+        self.dir_path: str = "/data/project/PaddleOCR/assets/emojis"
+        self.encode_path = "/data/project/PaddleOCR/assets/wechat_emoji.json"
 
     @property
     def emoji_list(self) -> list[Emoji]:

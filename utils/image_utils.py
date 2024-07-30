@@ -5,7 +5,7 @@ from .log_utils import timer
 
 
 TOP: int = 62
-BOTTOM: int = 618
+BOTTOM: int = 825
 LEFT: int = 304
 RIGHT: int = 1267
 CHAT_COLOR: tuple = (233, 232, 232)
