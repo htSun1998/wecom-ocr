@@ -12,6 +12,8 @@ from utils.image_utils import compare_images, is_image, BOTTOM
 from utils.log_utils import timer
 from utils.args import Arguments
 
+from temp_demo import *
+
 
 text_sys = TextSystem(Arguments)
 emoji_seacher = EmojiSeacher()
@@ -70,14 +72,29 @@ def execute_ocr(file, ip, phoneNumber):
             weak_res = merge_emoji(emoji_list, text_list)
             box.set_text(weak_res)
             logger.info(f"弱文本：{weak_res}")
-  
+
     _, title, _ = text_sys(title_box)
     logger.info(f"标题：{title[0][0]}")
     if h_new != BOTTOM:
         cv2.imwrite(f"/data/project/PaddleOCR/images/{phoneNumber}.png", image2)
+    
+    result = [box.to_list() for box in boxes]
+
+    content = ""
+    if get_status() is True:
+        try:
+            query = result[-1][-1]
+            content = get_congcong_result(query)['choices'][0]['message']['content']
+            content = remove_between_brackets(content).replace("[]", "")
+        except:
+            pass
+        
+
+    result = [box.to_list() for box in boxes]
     return Response(code=0,
-                    result=[box.to_list() for box in boxes],
+                    result=result,
                     ip=ip,
                     phoneNumber=phoneNumber,
                     message="success",
-                    title=title[0][0])
+                    title=title[0][0],
+                    content=content)

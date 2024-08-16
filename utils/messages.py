@@ -9,3 +9,4 @@ class Response(BaseModel):
     phoneNumber: str
     message: str
     title: str
+    content: str
